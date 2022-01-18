@@ -3,7 +3,11 @@
         Author: Colby Sawyer 1-5-2022
     """
 #TODO Add support for more devices
-from devices.hydros import Hydros 
+from devices.hydros import Hydros
+import serial.tools.list_ports
+import serial
+import time
+import re
 
 #TODO Add data connection testing (multiple device support)
 #TODO Add device specific classes (allow for specific data representation)
@@ -15,8 +19,9 @@ def get_data():
     Returns:
         bytearray: bytearray containing encoded data from the logger (intended for LoRa usage)
     """
-    sensor = Hydros(water_depth=100,temperature=200, conductivity=300)
-    sensor_data = sensor.get_data()
-
+    sensor = Hydros()
+    #sensor_data = sensor.get_data()
+    sensor_data = sensor.get_data_from_adapter()
+    
     return sensor_data
 #//=========================================
