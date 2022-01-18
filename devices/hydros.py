@@ -1,19 +1,22 @@
-    """ Main class for the Hydros 21 / Decagon CDT-10 water sensors
+# Main class for the Hydros 21 / Decagon CDT-10 water sensors
+#   Intended to be used with the LoRa transmission driver code
+# Author: Colby Sawyer 1-5-2022
+import serial.tools.list_ports
+import serial
+import time
+import re
 
-        Intended to be used with the LoRa transmission driver code
-
-        Author: Colby Sawyer 1-5-2022
-
-    """
 class Hydros:
-    #water_depth = 0
-    #temperature = 0
-    #electrical_conductivity = 0
+    water_depth = 0
+    temperature = 0
+    electrical_conductivity = 0
+    port_device = None
 
-    def __init__(self, water_depth, temperature, conductivity):
+    def __init__(self, water_depth=0, temperature=0, conductivity=0, port_device=None):
         self.water_depth = water_depth
         self.temperature = temperature
         self.electrical_conductivity = conductivity
+        self.port_device = port_device
 
     def get_data(self):
         sensor_data = bytearray(7)
@@ -41,7 +44,7 @@ class Hydros:
 
         return sensor_data
 
-    def get_data_from_adapter():
+    def get_data_from_adapter(self):
         # Simple SDI-12 Sensor Reader Copyright Dr. John Liu
         rev_date = '2018-12-03'
         version = '1.0'
@@ -67,9 +70,9 @@ class Hydros:
             i=i+1
         user_port_selection = input('\nSelect port from list (0,1,2...). SDI-12 adapter has USB VID=0403:')
         # Store the device name to open port with later in the script.
-        port_device=a[int(user_port_selection)].device
+        self.port_device=a[int(user_port_selection)].device
 
-        ser=serial.Serial(port=port_device,baudrate=9600,timeout=10)
+        ser=serial.Serial(port=self.port_device,baudrate=9600,timeout=10)
         time.sleep(2.5) # delay for arduino bootloader and the 1 second delay of the adapter.
 
         ser.write(b'?!')
@@ -91,15 +94,14 @@ class Hydros:
         sdi_12_line=ser.readline()
         sdi_12_line=sdi_12_line[:-2] # remove \r and \n
 
-        print('Sensor reading:',sdi_12_line.decode('utf-8'))
+        value = sdi_12_line.decode('utf-8')
 
-        sensor_data = bytearray(7)
-        FEATHER_ID = 1
+        print('Sensor reading:', value)
 
-        sensor_data[0] = FEATHER_ID
-        # Total Reading
-        sensor_data[1] = sdi_12_line.decode('utf-8')
-        
+        FEATHER_ID = '1'
+        data = (FEATHER_ID + value).encode()
+
+        sensor_data = bytearray(data)
         ser.close()
 
         return sensor_data
