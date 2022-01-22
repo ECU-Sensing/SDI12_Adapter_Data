@@ -48,16 +48,19 @@ class Hydros:
         version = '1.0'
 
         print('+-' * 40)
+        print('Simple SDI-12 Sensor Reader', version)
         print('+-' * 40)
 
         port_names=[]
         ports = serial.tools.list_ports.comports()
-        user_port_selection = 0
+        user_port_selection=0
         i=0
-
+        
         ser=serial.Serial(port=ports[int(user_port_selection)].device,baudrate=9600,timeout=10)
         time.sleep(2.5) # delay for arduino bootloader and the 1 second delay of the adapter.
 
+        print('Connecting to sensor ...')
+        
         ser.write(b'?!')
         sdi_12_line=ser.readline()
         sdi_12_line=sdi_12_line[:-2] # remove \r and \n since [0-9]$ has trouble with \r
