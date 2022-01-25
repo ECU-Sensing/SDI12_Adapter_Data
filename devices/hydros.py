@@ -6,6 +6,19 @@ import serial
 import time
 import re
 
+
+def parse_reading(val):
+    """Takes string of values from sensor and parses them into String list
+
+    Args:
+        val (String): [Unparsed string containing multiple reading from sensor ex. "0+40+24.4-140"]
+
+    Returns:
+        [String]: [Parsed list of strings each corresponding to a returned measurement]
+    """
+    res = re.findall(r'[-+][0-9.]+|\D', val)
+    return res
+
 class Hydros:
     water_depth = 0
     temperature = 0
@@ -96,13 +109,38 @@ class Hydros:
 
         value = sdi_12_line.decode('utf-8')
 
-        print('Sensor reading:', value)
+        parsed_values = parse_reading(value)
+        if len(parsed_values) > 3:
+            self.depth = float(parsed_values[1])
+            self.temperature = float(parsed_values[2])
+            self.electrical_conductivity = float(parsed_values[3])
+        else:
+            raise ValueError('SENSOR ERROR: Reading from sensor doesnt match explicitly defined format.')
 
-        FEATHER_ID = '1'
-        data = (FEATHER_ID + value).encode()
+        print('Sensor reading:', parsed_values)
+        
+        sensor_data = bytearray(7)
+        FEATHER_ID = 1
 
-        sensor_data = bytearray(data)
-        ser.close()
+        depth_val = self.water_depth
+        print("Water Depth: %0.1f %%" % depth_val)
+
+        temp_val = self.temperature
+        print("Temperature: %0.1f %%" % temp_val)
+
+        conduc_val = self.electrical_conductivity
+        print("Conductivity: %0.1f %%" % conduc_val)
+
+        sensor_data[0] = FEATHER_ID
+        # Water Depth
+        sensor_data[1] = (depth_val >> 8) & 0xff
+        sensor_data[2]= depth_val & 0xff
+        # Temperature
+        sensor_data[3] = (temp_val >> 8) & 0xff
+        sensor_data[4] = temp_val & 0xff
+        #Conductivity
+        sensor_data[5] = (conduc_val >> 8) & 0xff
+        sensor_data[6] = conduc_val & 0xff
 
         return sensor_data
 
