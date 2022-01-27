@@ -108,13 +108,13 @@ class Hydros:
         sensor_data = bytearray(7)
         FEATHER_ID = 1
 
-        depth_val = self.water_depth
+        depth_val = int(self.water_depth)
         print("Water Depth: %0.1f %%" % depth_val)
 
-        temp_val = self.temperature
+        temp_val = int(self.temperature)
         print("Temperature: %0.1f %%" % temp_val)
 
-        conduc_val = self.electrical_conductivity
+        conduc_val = int(self.electrical_conductivity)
         print("Conductivity: %0.1f %%" % conduc_val)
 
         sensor_data[0] = FEATHER_ID
