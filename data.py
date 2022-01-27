@@ -14,8 +14,7 @@ def get_data():
     Returns:
         bytearray: bytearray containing encoded data from the logger (intended for LoRa usage)
     """
-    sensor_data = Hydros().get_data_from_adapter()
-    #sensor_data = sensor.get_data()
+    sensor_data = Hydros().get_data()
     
     return sensor_data
 #//=========================================
